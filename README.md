@@ -1,1 +1,2 @@
 # AdventOfCodePython
+Just for fun
