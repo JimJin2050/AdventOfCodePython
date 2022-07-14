@@ -93,11 +93,3 @@ if __name__ == "__main__":
 
     print("Part1 result: {}".format(count_part1))
     print("Part2 result: {}".format(count_part2))
-
-
-#def how_many_fishes_at_the_end_for_one_fish(fish_timer, days):
-    # if days - (fish_timer + 1) < 0:
-    #     return 0
-    # else:
-    #     days -= (fish_timer + 1)
-    #     return 1 + count_of_descendants_of_one_fish(6, days) + count_of_descendants_of_one_fish(8, days)

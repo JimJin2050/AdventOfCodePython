@@ -107,11 +107,7 @@ def characters_have_been_paired(characters, left_indexes, end_index):
 
 # part 2
 def multiply_three_largest_basins():
-    left_brace, right_brace = [], []
-    left_brackets, right_brackets = [], []
-    left_angle_bracket, right_angle_bracket = [], []
-    left_square_bracket, right_square_bracket = [], []
-
+    pass  # ToDo
 
 
 if __name__ == "__main__":
