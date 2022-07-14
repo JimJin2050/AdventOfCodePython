@@ -1,2 +1,2 @@
 # AdventOfCodePython
-Just for fun
+You can access https://adventofcode.com/ for details, just for fun.
