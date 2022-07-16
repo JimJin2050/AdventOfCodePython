@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from queue import LifoQueue
 
 # read data
 with open("data/day10_input.txt") as f:
@@ -11,84 +12,111 @@ SQUARE_BRACKET_SCORE = 57
 BRACE_SCORE = 1197
 ANGLE_BRACKET_SCORE = 25137
 
-LEFT_CHARS = ['(', '[', '{', '<']
-RIGHT_CHARS = [')', ']', '}', '>']
+CHAR_PAIR = {'(': ')', '[': ']', '{': '}', '<': '>'}
 
 
 # Part 1
-def total_syntax_error_score():
-    error_count_list = [0] * 4  # error count for bracket, square bracket, brace and angle bracket
+def calculate_total_syntax_error_score():
+    error_count_list, _ = get_error_count_list_and_incomplete_chars()
 
-    for characters in characters_list:
-        left_brace, right_brace = 0, 0
-        left_bracket, right_bracket = 0, 0
-        left_angle_bracket, right_angle_bracket = 0, 0
-        left_square_bracket, right_square_bracket = 0, 0
-
-        left_bracket_indexes = []
-        left_square_bracket_indexes = []
-        left_brace_indexes = []
-        left_angle_bracket_indexes = []
-
-        for index, character in enumerate(characters):
-            if character in LEFT_CHARS:
-                if character == '(':
-                    left_bracket += 1
-                    left_bracket_indexes.append(index)
-                elif character == '[':
-                    left_square_bracket += 1
-                    left_square_bracket_indexes.append(index)
-                elif character == '{':
-                    left_brace += 1
-                    left_brace_indexes.append(index)
-                elif character == '<':
-                    left_angle_bracket += 1
-                    left_angle_bracket_indexes.append(index)
-            else:
-                if character == ')':
-                    if left_bracket > right_bracket:
-                        if not characters_have_been_paired(characters, left_bracket_indexes, index + 1):
-                            error_count_list[0] += 1
-                            break
-                        else:
-                            right_bracket += 1
-                    else:
-                        error_count_list[0] += 1
-                        break
-                elif character == ']':
-                    if left_square_bracket > right_square_bracket:
-                        if not characters_have_been_paired(characters, left_square_bracket_indexes, index + 1):
-                            error_count_list[1] += 1
-                            break
-                        else:
-                            right_square_bracket += 1
-                    else:
-                        error_count_list[1] += 1
-                        break
-                elif character == '}':
-                    if left_brace > right_brace:
-                        if not characters_have_been_paired(characters, left_brace_indexes, index + 1):
-                            error_count_list[2] += 1
-                            break
-                        else:
-                            right_brace += 1
-                    else:
-                        error_count_list[2] += 1
-                        break
-                elif character == '>':
-                    if left_angle_bracket > right_angle_bracket:
-                        if not characters_have_been_paired(characters, left_angle_bracket_indexes, index + 1):
-                            error_count_list[3] += 1
-                            break
-                        else:
-                            right_angle_bracket += 1
-                    else:
-                        error_count_list[3] += 1
-                        break
     return sum([
         BRACKET_SCORE * error_count_list[0], SQUARE_BRACKET_SCORE * error_count_list[1],
         BRACE_SCORE * error_count_list[2], ANGLE_BRACKET_SCORE * error_count_list[3]
     ])
+
+
+# part 2
+def calculate_middle_score():
+    _, incomplete_chars = get_error_count_list_and_incomplete_chars()
+    supplementary_chars = [[] for _ in range(len(incomplete_chars))]
+
+    for index, characters in enumerate(incomplete_chars):
+        chars_stack = LifoQueue()
+        end = len(characters) - 1
+
+        while end >= 0:
+            if characters[end] in ['(', '[', '{', '<']:
+                if chars_stack.empty():
+                    supplementary_chars[index].append(CHAR_PAIR.get(characters[end]))
+                else:
+                    top_element = chars_stack.get()
+                    if not CHAR_PAIR.get(characters[end]) == top_element:
+                        supplementary_chars[index].append(CHAR_PAIR.get(characters[end]))
+                        chars_stack.put(top_element)
+            else:
+                chars_stack.put(characters[end])
+            end -= 1
+
+    middle_score = calculate_supplementary_score(supplementary_chars)
+    return middle_score
+
+
+def get_error_count_list_and_incomplete_chars():
+    incomplete_chars = []
+    error_count_list = [0] * 4  # error count for bracket, square bracket, brace and angle bracket
+
+    for characters in characters_list:
+        # record the index of left bracket, left square bracket, left brace and left angle bracket
+        left_characters = [[] for _ in range(4)]
+        # record the index of right bracket, right square bracket, right brace and right angle bracket
+        right_characters = [[] for _ in range(4)]
+
+        for index, character in enumerate(characters):
+            if character in ['(', '[', '{', '<']:
+                if character == '(':
+                    left_characters[0].append(index)
+                elif character == '[':
+                    left_characters[1].append(index)
+                elif character == '{':
+                    left_characters[2].append(index)
+                elif character == '<':
+                    left_characters[3].append(index)
+            else:
+                if character == ')':
+                    if len(left_characters[0]) > len(right_characters[0]):
+                        if not characters_have_been_paired(characters, left_characters[0], index + 1):
+                            error_count_list[0] += 1
+                            break
+                        else:
+                            right_characters[0].append(index)
+                    else:
+                        error_count_list[0] += 1
+                        break
+                elif character == ']':
+                    if len(left_characters[1]) > len(right_characters[1]):
+                        if not characters_have_been_paired(characters, left_characters[1], index + 1):
+                            error_count_list[1] += 1
+                            break
+                        else:
+                            right_characters[1].append(index)
+                    else:
+                        error_count_list[1] += 1
+                        break
+                elif character == '}':
+                    if len(left_characters[2]) > len(right_characters[2]):
+                        if not characters_have_been_paired(characters, left_characters[2], index + 1):
+                            error_count_list[2] += 1
+                            break
+                        else:
+                            right_characters[2].append(index)
+                    else:
+                        error_count_list[2] += 1
+                        break
+                elif character == '>':
+                    if len(left_characters[3]) > len(right_characters[3]):
+                        if not characters_have_been_paired(characters, left_characters[3], index + 1):
+                            error_count_list[3] += 1
+                            break
+                        else:
+                            right_characters[3].append(index)
+                    else:
+                        error_count_list[3] += 1
+                        break
+
+            if index == len(characters) - 1:
+                incomplete_chars.append(characters)
+
+    return error_count_list, incomplete_chars
 
 
 def characters_have_been_paired(characters, left_indexes, end_index):
@@ -105,11 +133,17 @@ def characters_have_been_paired(characters, left_indexes, end_index):
     return been_paired
 
 
-# part 2
-def multiply_three_largest_basins():
-    pass  # ToDo
+def calculate_supplementary_score(supplementary_chars):
+    score_dict = {')': 1, ']': 2, '}': 3, '>': 4}
+    score_list = [0] * len(supplementary_chars)
+
+    for index, chars in enumerate(supplementary_chars):
+        for char in chars:
+            score_list[index] = score_list[index] * 5 + score_dict[char]
+
+    return sorted(score_list)[len(score_list)//2]
 
 
 if __name__ == "__main__":
-    score = total_syntax_error_score()
-    print(score)
+    print(calculate_total_syntax_error_score())
+    print(calculate_middle_score())
