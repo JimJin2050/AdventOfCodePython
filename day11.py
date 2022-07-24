@@ -10,7 +10,6 @@ octopus_energy_level_matrix_1 = copy.deepcopy(octopus_energy_level_matrix)
 octopus_energy_level_matrix_2 = copy.deepcopy(octopus_energy_level_matrix)
 
 rows, cols = len(octopus_energy_level_matrix), len(octopus_energy_level_matrix[0])
-flash_count = [0]
 
 
 # part 1
