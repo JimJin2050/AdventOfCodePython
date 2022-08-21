@@ -89,7 +89,7 @@ def add_up_version_number(bits_str: str) -> int:
     return version_amount
 
 
-def evaluate_packet(bits_str: str):
+def evaluate_packet(bits_str: str) -> int:
     index = 0
     _, type_id, index_delta = read_packet(bits_str[index:])
     index += index_delta
